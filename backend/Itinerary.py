@@ -2,10 +2,13 @@ from datetime import datetime, timedelta
 from Google import get_travel_time
 
 
+from datetime import datetime, timedelta
+from Google import get_travel_time
+
 def build_daily_itinerary_with_travel(locations, start_location="The Plaza Hotel New York"):
     """
     Build a daily itinerary with meals, travel, and activities.
-    locations: list of dicts with 'name' and optional 'estTime' in hours
+    locations: list of dicts with 'name' and optional 'estTime' and 'estCost'
     start_location: where the day starts and ends (default = The Plaza Hotel New York)
     """
     itinerary = []
@@ -62,7 +65,8 @@ def build_daily_itinerary_with_travel(locations, start_location="The Plaza Hotel
                     "type": "activity",
                     "name": loc["name"],
                     "start": travel_end.strftime("%I:%M %p"),
-                    "end": activity_end.strftime("%I:%M %p")
+                    "end": activity_end.strftime("%I:%M %p"),
+                    "cost": loc.get("estCost", 0)  # <-- added cost here
                 })
 
                 prev_location = loc["name"]
