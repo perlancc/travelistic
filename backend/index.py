@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from Itinerary import build_daily_itinerary_with_travel
 
 app = Flask(__name__)
 
@@ -11,24 +12,24 @@ users = [
 ]
 
 locations = [
-    {"id": 1, "name": "Statue of Liberty", "votes": {"yes": [], "no": []}, "estCost": 25},
-    {"id": 2, "name": "Times Square", "votes": {"yes": [], "no": []}, "estCost": 0},
-    {"id": 3, "name": "Empire State Building", "votes": {"yes": [], "no": []}, "estCost": 44},
-    {"id": 4, "name": "Brooklyn Bridge", "votes": {"yes": [], "no": []}, "estCost": 0},
-    {"id": 5, "name": "Broadway Theater District", "votes": {"yes": [], "no": []}, "estCost": 150},
-    {"id": 6, "name": "Rockefeller Center", "votes": {"yes": [], "no": []}, "estCost": 38},
-    {"id": 7, "name": "One World Observatory", "votes": {"yes": [], "no": []}, "estCost": 40},
-    {"id": 8, "name": "Metropolitan Museum of Art", "votes": {"yes": [], "no": []}, "estCost": 30},
-    {"id": 9, "name": "Museum of Modern Art (MoMA)", "votes": {"yes": [], "no": []}, "estCost": 25},
-    {"id": 10, "name": "American Museum of Natural History", "votes": {"yes": [], "no": []}, "estCost": 23},
-    {"id": 11, "name": "Chrysler Building", "votes": {"yes": [], "no": []}, "estCost": 0},
-    {"id": 12, "name": "Flatiron Building", "votes": {"yes": [], "no": []}, "estCost": 0},
-    {"id": 13, "name": "New York Public Library", "votes": {"yes": [], "no": []}, "estCost": 0},
-    {"id": 14, "name": "Madison Square Garden", "votes": {"yes": [], "no": []}, "estCost": 50},
-    {"id": 15, "name": "Coney Island", "votes": {"yes": [], "no": []}, "estCost": 10},
-    {"id": 16, "name": "Yankee Stadium", "votes": {"yes": [], "no": []}, "estCost": 35},
-    {"id": 17, "name": "Apollo Theater", "votes": {"yes": [], "no": []}, "estCost": 30},
-    {"id": 18, "name": "Brooklyn Botanic Garden", "votes": {"yes": [], "no": []}, "estCost": 18}
+  {"id": 1, "name": "Statue of Liberty", "votes": {"yes": [1,2,3], "no": [4]}, "estCost": 25, "estTime": 3},
+  {"id": 2, "name": "Times Square", "votes": {"yes": [2,3], "no": [1]}, "estCost": 0, "estTime": 2},
+  {"id": 3, "name": "Empire State Building", "votes": {"yes": [1,4], "no": [2,3]}, "estCost": 44, "estTime": 2},
+  {"id": 4, "name": "Brooklyn Bridge", "votes": {"yes": [2,3,4], "no": [1]}, "estCost": 0, "estTime": 1.5},
+  {"id": 5, "name": "Broadway Theater District", "votes": {"yes": [1,2,3], "no": []}, "estCost": 150, "estTime": 3},
+  {"id": 6, "name": "Rockefeller Center", "votes": {"yes": [1], "no": [2,3]}, "estCost": 38, "estTime": 2},
+  {"id": 7, "name": "One World Observatory", "votes": {"yes": [2,3,4], "no": [1]}, "estCost": 40, "estTime": 2},
+  {"id": 8, "name": "Metropolitan Museum of Art", "votes": {"yes": [1,3], "no": [2]}, "estCost": 30, "estTime": 3},
+  {"id": 9, "name": "Museum of Modern Art (MoMA)", "votes": {"yes": [2,3,4], "no": []}, "estCost": 25, "estTime": 2},
+  {"id": 10, "name": "American Museum of Natural History", "votes": {"yes": [1], "no": [2,3]}, "estCost": 23, "estTime": 3},
+  {"id": 11, "name": "Chrysler Building", "votes": {"yes": [1,2,3], "no": []}, "estCost": 0, "estTime": 1},
+  {"id": 12, "name": "Flatiron Building", "votes": {"yes": [3,4], "no": [1,2]}, "estCost": 0, "estTime": 1},
+  {"id": 13, "name": "New York Public Library", "votes": {"yes": [2,3,4], "no": []}, "estCost": 0, "estTime": 1.5},
+  {"id": 14, "name": "Madison Square Garden", "votes": {"yes": [1,3], "no": [2]}, "estCost": 50, "estTime": 2},
+  {"id": 15, "name": "Coney Island", "votes": {"yes": [2,4], "no": [1,3]}, "estCost": 10, "estTime": 4},
+  {"id": 16, "name": "Yankee Stadium", "votes": {"yes": [1,2,3], "no": []}, "estCost": 35, "estTime": 3},
+  {"id": 17, "name": "Apollo Theater", "votes": {"yes": [2,3], "no": [1]}, "estCost": 30, "estTime": 2},
+  {"id": 18, "name": "Brooklyn Botanic Garden", "votes": {"yes": [1,2,3], "no": [4]}, "estCost": 18, "estTime": 2}
 ]
 
 # Helper function to get majority yes places
@@ -51,6 +52,12 @@ def get_user(user_id):
     if not user:
         return "User not found", 404
     return jsonify(user)
+
+@app.route("/itinerary/daily", methods=["GET"])
+def daily_itinerary():
+    majority_locations = get_majority_yes_places()
+    itinerary = build_daily_itinerary_with_travel(majority_locations)
+    return jsonify(itinerary)
 
 @app.route("/users", methods=["POST"])
 def add_user():
