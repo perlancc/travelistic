@@ -1,98 +1,145 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function ItineraryPlanner() {
+  const [selectedCategory, setSelectedCategory] = useState("activities");
 
-export default function HomeScreen() {
+  const categories = ["activities", "restaurants"];
+  const items = {
+    activities: ["Rockfeller", "Brookln Bridge", "Statue of Liberty"],
+    restaurants: ["Pizza Place", "Sushi Bar", "BBQ Grill"],
+  };
+
+  const friends = ["Perla", "Monica", "Sol", "Michelle"];
+
+  // track votes (like / dislike)
+  const [votes, setVotes] = useState(
+    friends.reduce((acc, friend) => {
+      acc[friend] = {};
+      return acc;
+    }, {})
+  );
+
+  const toggleVote = (friend, item) => {
+    setVotes((prevVotes) => ({
+      ...prevVotes,
+      [friend]: {
+        ...prevVotes[friend],
+        [item]: prevVotes[friend][item] === "like" ? "dislike" : "like",
+      },
+    }));
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Hello World!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Make Changes</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      {/* Fake dropdown with buttons */}
+      <View style={styles.dropdown}>
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category}
+            onPress={() => setSelectedCategory(category)}
+            style={[
+              styles.dropdownButton,
+              selectedCategory === category && styles.activeButton,
+            ]}
+          >
+            <Text style={styles.dropdownText}>{category}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* Show items for selected category */}
+      <FlatList
+        data={items[selectedCategory]}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <Text style={styles.itemText}>{item}</Text>
+
+            {friends.map((friend) => (
+              <View key={friend} style={styles.friendRow}>
+                <Text style={styles.friendName}>{friend}</Text>
+                <TouchableOpacity
+                  onPress={() => toggleVote(friend, item)}
+                  style={styles.icon}
+                >
+                  <Ionicons
+                    name={
+                      votes[friend][item] === "like"
+                        ? "checkmark-circle"
+                        : "close-circle"
+                    }
+                    size={24}
+                    color={
+                      votes[friend][item] === "like" ? "#2289ceff" : "#F44336"
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffffff",
+    padding: 50,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  dropdown: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  dropdownButton: {
+    backgroundColor: "#10B981",
+    padding: 10,
+    borderRadius: 10,
+    marginHorizontal: 5,
+  },
+  activeButton: {
+    backgroundColor: "#10B981",
+  },
+  dropdownText: {
+    color: "white",
+    fontSize: 16,
+  },
+  card: {
+    backgroundColor: "#10B981",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+  itemText: {
+    color: "white",
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: "bold",
+  },
+  friendRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 4,
+  },
+  friendName: {
+    color: "white",
+    fontSize: 16,
+  },
+  icon: {
+    marginLeft: 10,
   },
 });
