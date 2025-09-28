@@ -68,7 +68,7 @@ def build_daily_itinerary_with_travel(locations, start_location="The Plaza Hotel
                 prev_location = loc["name"]
                 location_index += 1
 
-        # ✅ After dinner, travel back to hotel
+        # After dinner, travel back to hotel
         travel_minutes = get_travel_time(prev_location, start_location)
         return_start = datetime.strptime("19:00", "%H:%M")
         return_end = return_start + timedelta(minutes=travel_minutes)
